@@ -5,6 +5,7 @@
 
     <ul class="collapsible">
         {% for task in tasks %}
+            {% if task.done == False %}
         <li>
             <div class="collapsible-header white-text light-blue darken-4 text-shadow">
                 <div class="col s3">
@@ -26,6 +27,7 @@
                 <p><em>by: {{ task.created_by }}</em></p>
             </div>
         </li>
+        {% endif %}
     {% endfor %}
     </ul>
 

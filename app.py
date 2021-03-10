@@ -109,7 +109,8 @@ def add_task():
             "task_description": request.form.get("task_description"),
             "is_urgent": is_urgent,
             "due_date": request.form.get("due_date"),
-            "created_by": session["user"]
+            "created_by": session["user"],
+            "completed": False
         }
         mongo.db.tasks.insert_one(task)
         flash("Task successfully Added")
@@ -130,9 +131,9 @@ def edit_task(task_id):
             "task_description": request.form.get("task_description"),
             "is_urgent": is_urgent,
             "due_date": request.form.get("due_date"),
-            "created_by": session["user"]
+            "created_by": session["user"],
+            "completed": False
         }
-        
         mongo.db.tasks.update({"_id": ObjectId(task_id)}, submit)
         flash("Task successfully Updated")
 
@@ -141,11 +142,22 @@ def edit_task(task_id):
     return render_template("edit_task.html", task=task, categories=categories)
 
 
-@app.route("/delete_task/<task_id>")
+@app.route("/delete_task/<task_id>", methods=["GET", "POST"])
 def delete_task(task_id):
-    mongo.db.tasks.remove({"_id": ObjectId(task_id)})
-    flash("Task successfully Deleted")
+    taskDone = mongo.db.tasks.update_one(
+        {"_id": ObjectId(task_id)},
+        {'$set': {'done': True}},
+        upsert=True
+        )
+    print("complete, ", taskDone)
+
+    flash("Task successfully Completed")
     return redirect(url_for("get_tasks"))
+
+    # task = mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
+    # return redirect(url_for("get_tasks"))
+    # mongo.db.tasks.remove({"_id": ObjectId(task_id)})
+    # flash("Task successfully Deleted")
 
 
 if __name__ == "__main__":
